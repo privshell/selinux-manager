@@ -1,0 +1,4 @@
+# SELinux Manager - custom rules, one per line (loaded by KernelSU at boot)
+# Examples:
+# allow untrusted_app some_file file { read open getattr }
+# dontaudit some_domain some_type file { read }

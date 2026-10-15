@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en" data-theme="amoled">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SELinux Manager</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="title">SELinux Manager</div>
+  <button class="chip" id="thm">AMOLED</button>
+</header>
+
+<main>
+<section id="p-status" class="pane on">
+  <div class="card hero">
+    <div class="muted">Current mode</div>
+    <div id="badge" class="badge off">...</div>
+    <div class="seg"><button id="bEnf">Enforcing</button><button id="bPer">Permissive</button></div>
+  </div>
+  <div class="card" id="notes" hidden></div>
+  <div class="card">
+    <span class="lbl">Mode after every boot</span>
+    <select id="bootSel">
+      <option value="none">Unchanged</option>
+      <option value="enforcing">Enforcing</option>
+      <option value="permissive">Permissive</option>
+    </select>
+  </div>
+  <div class="card"><h3>Device</h3><div id="info"></div></div>
+</section>
+
+<section id="p-rules" class="pane">
+  <div class="sub" data-group="rules">
+    <button data-sub="r-edit" class="sel">Editor</button>
+    <button data-sub="r-build">Builder</button>
+    <button data-sub="r-tpl">Templates</button>
+    <button data-sub="r-bak">Backups</button>
+  </div>
+  <div id="r-edit" class="subpane">
+    <div class="card">
+      <div class="muted">One rule per line. Saved rules load at every boot. A live rule stays until reboot and cannot be removed earlier.</div>
+      <textarea id="ed" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+      <div class="btns">
+        <button id="rCheck">Check</button>
+        <button id="rSave">Save</button>
+        <button id="rLive">Apply live</button>
+        <button id="rBoth" class="pri">Save &amp; apply</button>
+        <button id="rLoad">Reload</button>
+        <button id="rExport">Export</button>
+        <button id="rTrial">Trial next boot</button>
+      </div>
+      <pre id="rlog" hidden></pre>
+    </div>
+  </div>
+  <div id="r-build" class="subpane" hidden>
+    <div class="card">
+      <div class="grid2">
+        <label><span class="lbl">Action</span><select id="bAct"></select></label>
+        <label><span class="lbl">Class</span><input id="bCls" placeholder="file" autocapitalize="off"></label>
+        <label><span class="lbl">Source domain</span><input id="bSrc" placeholder="untrusted_app" autocapitalize="off"></label>
+        <label><span class="lbl">Target type</span><input id="bTgt" placeholder="sysfs" autocapitalize="off"></label>
+      </div>
+      <span class="lbl">Permissions (space separated)</span>
+      <input id="bPrm" placeholder="read open getattr" autocapitalize="off">
+      <div class="btns"><button id="bAdd">Add to editor</button><button id="bNow">Apply live</button></div>
+    </div>
+  </div>
+  <div id="r-tpl" class="subpane" hidden><div class="card"><div class="muted">Placeholders in capitals have to be replaced before saving.</div><div id="tplList"></div></div></div>
+  <div id="r-bak" class="subpane" hidden>
+    <div class="card"><div class="muted">The ten newest versions of the rules file. Every save and restore makes one.</div><div id="bakList"></div><pre id="bakOut" hidden></pre></div>
+  </div>
+</section>
+
+<section id="p-den" class="pane">
+  <div class="card">
+    <div class="sub" data-group="den">
+      <button data-sub="now" class="sel">Recent</button>
+      <button data-sub="boot">From boot</button>
+      <button data-sub="rec">Recording</button>
+    </div>
+    <div id="recBox" class="muted" hidden></div>
+    <div class="btns"><button id="dLoad" class="pri">Load</button><button id="dRec">Start recording</button><button id="dOwn">Find apps</button></div>
+    <span class="lbl">Filter</span><input id="dF" autocapitalize="off">
+  </div>
+  <div class="card"><div id="dSum" class="muted"></div><div id="dList"></div></div>
+</section>
+
+<section id="p-mod" class="pane">
+  <div class="card">
+    <div class="muted">Rules that every installed module adds to the policy at boot.</div>
+    <div class="btns"><button id="mScan" class="pri">Scan modules</button></div>
+  </div>
+  <div id="mOut"></div>
+</section>
+
+<section id="p-ins" class="pane">
+  <div class="sub" data-group="ins">
+    <button data-sub="i-dom" class="sel">Domains</button>
+    <button data-sub="i-app">Apps</button>
+    <button data-sub="i-file">Files</button>
+    <button data-sub="i-prop">Properties</button>
+  </div>
+  <div id="i-dom" class="subpane"><div class="card"><div class="btns"><button id="psLoad" class="pri">Load processes</button></div><span class="lbl">Filter</span><input id="psF" autocapitalize="off"><div id="psList"></div></div></div>
+  <div id="i-app" class="subpane" hidden><div class="card"><div class="muted">Each app's seinfo decides its app domain (for example untrusted_app_32 for old target SDKs).</div><div class="btns"><button id="apLoad" class="pri">Load apps</button></div><span class="lbl">Filter</span><input id="apF" autocapitalize="off"><div id="apList"></div></div></div>
+  <div id="i-file" class="subpane" hidden>
+    <div class="card">
+      <span class="lbl">Path</span><input id="fPath" value="/data/local/tmp" autocapitalize="off">
+      <div class="btns"><button id="fLs" class="pri">List</button><button id="fRes">Restore default label</button></div>
+      <span class="lbl">New label</span><input id="fCtx" placeholder="u:object_r:system_file:s0" autocapitalize="off">
+      <label class="ck"><input type="checkbox" id="fRec"><span>Recursive</span></label>
+      <div class="btns"><button id="fSet">Set label</button></div>
+      <pre id="fOut" hidden></pre>
+    </div>
+  </div>
+  <div id="i-prop" class="subpane" hidden><div class="card"><span class="lbl">Property name contains</span><input id="prF" placeholder="selinux" autocapitalize="off"><div class="btns"><button id="prLoad" class="pri">Search</button></div><pre id="prOut" hidden></pre></div></div>
+</section>
+
+<section id="p-more" class="pane">
+  <div class="card"><h3>Safe tests</h3>
+    <div class="muted">Ways to try the risky parts without leaving anything behind.</div>
+    <div class="row"><b>Permissive for 60 seconds</b><small>Switches back to enforcing by itself, even if this page is closed.</small><div class="act"><button id="tPerm">Start</button></div></div>
+    <div class="row"><b>Boot guard test</b><small>Makes the next normal boot count as the third unfinished one. The phone boots as usual, the module disables itself and says the guard worked. Enable it again in the manager afterwards.</small><div class="act"><button id="tArm">Arm</button><button id="tDisarm">Disarm</button></div></div>
+    <div class="row"><b>Test file for labels</b><small>Creates a file in /data/local/tmp and puts it in the Files tab, so chcon and restorecon can be tried on something harmless.</small><div class="act"><button id="tFile">Create</button></div></div>
+    <div class="row"><b>Trial rules</b><small>Rules editor > Trial next boot: the editor's rules are applied once after the next boot and then forgotten. The boot after that is clean. Saved rules are not touched.</small><div class="act"><button id="tLog">Last trial result</button><button id="tClear">Cancel pending trial</button></div></div>
+    <pre id="tOut" hidden></pre>
+  </div>
+  <div class="card"><h3>Kernel and visibility</h3><div class="btns"><button id="kLoad" class="pri">Read</button></div><div id="kOut"></div></div>
+  <div class="card"><h3>History</h3><div class="muted">Every change this module made, newest last.</div><div class="btns"><button id="hLoad">Show</button></div><pre id="hOut" hidden></pre></div>
+  <div class="card"><h3>Report</h3><div class="muted">Status, kernel, rules, modules, history and recent denials in one text, for an issue or a chat.</div><div class="btns"><button id="rpMake" class="pri">Build report</button><button id="rpCopy">Copy</button></div><pre id="rpOut" hidden></pre></div>
+</section>
+</main>
+
+<nav>
+  <button data-tab="status" class="on">Status</button>
+  <button data-tab="rules">Rules</button>
+  <button data-tab="den">Denials</button>
+  <button data-tab="mod">Modules</button>
+  <button data-tab="ins">Inspect</button>
+  <button data-tab="more">More</button>
+</nav>
+<div id="toast"></div>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
