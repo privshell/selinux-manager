@@ -7,14 +7,14 @@ name: SELinux Manager
 summary: SELinux toolkit with a full WebUI. Switch modes with kernel read-back, edit policy rules with backups and diff, inspect denials with app names, scan every module's sepolicy.rule, and test risky changes safely with automatic revert.
 description: README.md
 license: MIT
-homepage: https://github.com/kreza6173-pixel/selinux-manager
-support: https://github.com/kreza6173-pixel/selinux-manager/issues
+homepage: https://github.com/privshell/selinux-manager
+support: https://github.com/privshell/selinux-manager/issues
 tags: [selinux, security, sepolicy, webui, tools]
 metamodule: false
 
 authors:
-  - name: kreza6173-pixel
-    url: https://github.com/kreza6173-pixel
+  - name: privshell
+    url: https://github.com/privshell
 
 compatibility:
   androidMinApi: 28

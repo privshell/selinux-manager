@@ -2,5 +2,5 @@ id=selinux_manager
 name=SELinux Manager
 version=1.0.0
 versionCode=100
-author=kreza6173-pixel
+author=privshell
 description=SELinux toolkit for KernelSU: mode, rules with backups and diff, denial inspector with app names and recording, module rule scanner, domains, file labels, report.
